@@ -20,7 +20,7 @@ using namespace std;
 double minRes = -100;
 double maxRes = 100;
 
-int stepSizeADC = 100;
+int stepSizeADC = 1000;
 int stepSizeSlice = 100000;
 double timeLength = 13.88;
 
@@ -152,7 +152,7 @@ int main(int argc, char ** argv){
     
     //Display completed
     if((i%10000) == 0){
-      cerr << (i*100.)/(TreeH->GetEntries()) <<"% complete \n";
+      cerr << (i*100.)/(TreeH->GetEntries()) <<"% completed events in the first loop \n";
     }
     TreeH->GetEntry(i);
 
@@ -165,7 +165,7 @@ int main(int argc, char ** argv){
     double T6 = dataT6[0] * A;    
     double T7 = dataT7[0] * A;
 
-    double xADC = (double)i * timeLength / eventsADC;
+    double xADC = (double)i * timeLength / (double)(TreeH->GetEntries());
     graphA1 ->SetPoint(graphA1 ->GetN(),xADC,dataA1[0]);
     graphA2 ->SetPoint(graphA2 ->GetN(),xADC,dataA2[0]);
     graphA3 ->SetPoint(graphA3 ->GetN(),xADC,dataA3[0]);
@@ -209,10 +209,10 @@ int main(int argc, char ** argv){
   graphresT4->SetName("ToF_res_4_time");
   graphResList.push_back(graphresT4);
   TGraphAsymmErrors * graphresb1 = new TGraphAsymmErrors();
-  graphresb1->SetName("Pos_res_1_time");
+  graphresb1->SetName("Pos_res_b1_time");
   graphResList.push_back(graphresb1);
   TGraphAsymmErrors * graphresb2 = new TGraphAsymmErrors();
-  graphresb2->SetName("Pos_res_2_time");
+  graphresb2->SetName("Pos_res_b2_time");
   graphResList.push_back(graphresb2);
   TGraphAsymmErrors * graphresT5 = new TGraphAsymmErrors();
   graphresT5->SetName("ToF_res_5_time");
@@ -239,14 +239,12 @@ int main(int argc, char ** argv){
   sliceHistList.push_back(slice_T5);
   TH1D * slice_T6 = new TH1D("sliceT1","sliceT1",4000,minRes,maxRes);
   sliceHistList.push_back(slice_T6);
-  
-  double eventsSlice = (double)(TreeH->GetEntries()/stepSizeSlice);
 
   for(int i = 0; i < TreeH->GetEntries(); i += stepSizeSlice){
 
     //Display completed
     if((i%10000) == 0){
-      cerr << (i*100.)/(TreeH->GetEntries()) <<"% complete \n";
+      cerr << (i*100.)/(TreeH->GetEntries()) <<"% completed events in the second loop \n";
     }  
     for(int j = i; j < (i + stepSizeSlice); j++){         
       if(j >= TreeH->GetEntries()){
@@ -274,14 +272,13 @@ int main(int argc, char ** argv){
       slice_T6->Fill(T6-T7);
     }
 
-    double xSlice = (double)i * timeLength / eventsSlice;
+    double xSlice = (double)i * timeLength / ((double)(TreeH->GetEntries()));
        
     //Now I can fit my slices to my gausians
     for (int k = 0; k < sliceHistList.size(); k++){
       //Fit to gaus
       sliceHistList[k]->Fit("gaus","qer","",((sliceHistList[k]->GetMean())-1.5),((sliceHistList[k]->GetMean())+1.5));
       //Fill vector
-      cout<<(sliceHistList[k]->GetFunction("gaus")->GetParameter(2))<<"\n";
       graphResList[k]->SetPoint(graphResList[k]->GetN(),xSlice,sliceHistList[k]->GetFunction("gaus")->GetParameter(2));
       //Reset histogram
       sliceHistList[k]->Reset();
@@ -290,28 +287,16 @@ int main(int argc, char ** argv){
   }
 
   cerr<<"Finished loop over TTree\n";
-
  
   inputFile->Close();
 
 
   //Write out
-  outputFile->cd();
-    
-  for (int i = 0; i < totalHistList1D.size(); i++){
-    totalHistList1D[i]->Write();
-  }
-  for (int i = 0; i < totalHistList2D.size(); i++){
-    totalHistList2D[i]->Write();
-  }
-  for (int i = 0; i < graphADCList.size(); i++){
-    graphADCList[i]->Write();
-  }
-
-  for (int i = 0; i < graphResList.size(); i++){
-    graphResList[i]->Write();
-  }
-
+  outputFile->cd();  
+  for (int i = 0; i < totalHistList1D.size(); i++){totalHistList1D[i]->Write();}
+  for (int i = 0; i < totalHistList2D.size(); i++){totalHistList2D[i]->Write();}
+  for (int i = 0; i < graphADCList.size(); i++){graphADCList[i]->Write();}
+  for (int i = 0; i < graphResList.size(); i++){graphResList[i]->Write();}
   outputFile->Close();
   cerr<< argv[2]<<" has been completed. \n\n\n";
   
