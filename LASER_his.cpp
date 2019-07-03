@@ -20,8 +20,8 @@ using namespace std;
 double minRes = -100;
 double maxRes = 100;
 
-int stepSizeADC = 1000;
-int stepSizeSlice = 100000;
+int stepSizeADC = 1;
+int stepSizeSlice = 1000;
 double timeLength = 13.88;
 
 
@@ -100,9 +100,9 @@ int main(int argc, char ** argv){
   totalHistList1D.push_back(ToF_res_box);
   TH1D * ToF_res_PD = new TH1D("ToFPD","Time of Flight on Photodiode",40,27,28);
   totalHistList1D.push_back(ToF_res_PD);
-  TH2D * ToF_v_ADC_bar1 = new TH2D("TvA_1","Time of Flight vs ADC Top Bar",60,500,3000,4000,0,100);
+  TH2D * ToF_v_ADC_bar1 = new TH2D("TvA_1","Time of Flight vs ADC Top Bar",90,550,3000,8000,0,100);
   totalHistList2D.push_back(ToF_v_ADC_bar1);
-  TH2D * ToF_v_ADC_bar2 = new TH2D("TvA_2","Time of Flight vs ADC Bottom Bar",60,500,3000,4000,0,100);
+  TH2D * ToF_v_ADC_bar2 = new TH2D("TvA_2","Time of Flight vs ADC Bottom Bar",90,550,3000,8000,0,100);
   totalHistList2D.push_back(ToF_v_ADC_bar2);
 
   //Now make a vector of graphs for the ADCs and time of flights
@@ -165,6 +165,15 @@ int main(int argc, char ** argv){
     double T6 = dataT6[0] * A;    
     double T7 = dataT7[0] * A;
 
+    if(sqrt(dataA1[0]*dataA2[0])<550){
+      continue;
+    }
+
+    if(sqrt(dataA3[0]*dataA4[0])<550){
+      continue;
+    }
+    
+    
     double xADC = (double)i * timeLength / (double)(TreeH->GetEntries());
     graphA1 ->SetPoint(graphA1 ->GetN(),xADC,dataA1[0]);
     graphA2 ->SetPoint(graphA2 ->GetN(),xADC,dataA2[0]);
@@ -273,7 +282,7 @@ int main(int argc, char ** argv){
     }
 
     double xSlice = (double)i * timeLength / ((double)(TreeH->GetEntries()));
-       
+    /* 
     //Now I can fit my slices to my gausians
     for (int k = 0; k < sliceHistList.size(); k++){
       //Fit to gaus
@@ -283,9 +292,9 @@ int main(int argc, char ** argv){
       //Reset histogram
       sliceHistList[k]->Reset();
     }
-    
+    */
   }
-
+    
   cerr<<"Finished loop over TTree\n";
  
   inputFile->Close();
