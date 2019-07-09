@@ -20,7 +20,7 @@ using namespace std;
 double minRes = -100;
 double maxRes = 100;
 
-int stepSizeADC = 1;
+int stepSizeADC = 100;
 int stepSizeSlice = 1000;
 double timeLength = 13.88;
 
@@ -165,14 +165,14 @@ int main(int argc, char ** argv){
     double T6 = dataT6[0] * A;    
     double T7 = dataT7[0] * A;
 
-    if(sqrt(dataA1[0]*dataA2[0])<550){
+    /* if(sqrt(dataA1[0]*dataA2[0])<550){
       continue;
     }
 
     if(sqrt(dataA3[0]*dataA4[0])<550){
-      continue;
+       continue;
     }
-    
+    */
     
     double xADC = (double)i * timeLength / (double)(TreeH->GetEntries());
     graphA1 ->SetPoint(graphA1 ->GetN(),xADC,dataA1[0]);
