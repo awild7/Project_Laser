@@ -20,7 +20,7 @@ using namespace std;
 double minRes = -100;
 double maxRes = 100;
 
-int stepSizeADC = 100;
+int stepSizeADC = 1;
 int stepSizeSlice = 1000;
 double timeLength = 13.88;
 
@@ -29,10 +29,10 @@ double timeLength = 13.88;
 
 int main(int argc, char ** argv){
 
-  if( argc != 3){
+  if( argc != 5){
     
     cerr<<"Wrong number of arguments. Instead try:\n\t"
-	<< "laserHist /path/to/input/Tree/file /path/to/output/Hist/file \n";
+	<< "laserHist /path/to/input/Tree/file /path/to/output/Hist/file [c1] [c0]\n";
 
     return -1;
     
@@ -41,7 +41,8 @@ int main(int argc, char ** argv){
 //Get D and A trees. Open output file.
   TFile * inputFile = new TFile(argv[1]);
   TFile * outputFile = new TFile(argv[2],"RECREATE");
-  
+  double c1 = atoi(argv[3]);
+  double c0 = atoi(argv[4]);
   cerr<<"File has been open from: "<<argv[1]<<"\n";
   
 //Make trees and histograms for the nuclei
@@ -104,6 +105,10 @@ int main(int argc, char ** argv){
   totalHistList2D.push_back(ToF_v_ADC_bar1);
   TH2D * ToF_v_ADC_bar2 = new TH2D("TvA_2","Time of Flight vs ADC Bottom Bar",90,550,3000,8000,0,100);
   totalHistList2D.push_back(ToF_v_ADC_bar2);
+  TH2D * ToF_v_ADC_3 = new TH2D("TvA_3","Time of Flight vs ADC of PMT 3",150,0,3000,8000,-60,60);
+  totalHistList2D.push_back(ToF_v_ADC_3);
+  TH2D * ToF_v_ADC_4 = new TH2D("TvA_4","Time of Flight vs ADC of PMT 4",150,0,3000,8000,-60,60);
+  totalHistList2D.push_back(ToF_v_ADC_4);
 
   //Now make a vector of graphs for the ADCs and time of flights
   vector<TGraphAsymmErrors*> graphADCList;
@@ -197,6 +202,8 @@ int main(int argc, char ** argv){
     
     ToF_v_ADC_bar1->Fill(((dataA1[0]+dataA2[0])/2),((T1+T2)/2)-T7);
     ToF_v_ADC_bar2->Fill(((dataA3[0]+dataA4[0])/2),((T3+T4)/2)-T7);
+    ToF_v_ADC_3->Fill(dataA3[0],(T3-T7)-(c1/sqrt(dataA3[0]))-c0);
+    ToF_v_ADC_4->Fill(dataA4[0],(T4-T7)-(c1/sqrt(dataA4[0]))-c0);
     
     }
      
