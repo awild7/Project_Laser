@@ -16,3 +16,9 @@ include_directories(${INCLUDES} ${CMAKE_CURRENT_BINARY_DIR})
 # Add executable for making his
 add_executable(laserHist LASER_his.cpp)
 target_link_libraries(laserHist ${ROOT_LIBRARIES})
+
+#Add executable for making his
+add_executable(timewalk timewalk.cpp)
+target_link_libraries(timewalk ${ROOT_LIBRARIES})
+
+

@@ -29,10 +29,10 @@ double timeLength = 13.88;
 
 int main(int argc, char ** argv){
 
-  if( argc != 3){
+  if( argc != 5){
     
     cerr<<"Wrong number of arguments. Instead try:\n\t"
-	<< "laserHist /path/to/input/Tree/file /path/to/output/Hist/file \n";
+	<< "laserHist /path/to/input/Tree/file /path/to/output/Hist/file [c1] [c0]\n";
 
     return -1;
     
@@ -41,6 +41,8 @@ int main(int argc, char ** argv){
 //Get D and A trees. Open output file.
   TFile * inputFile = new TFile(argv[1]);
   TFile * outputFile = new TFile(argv[2],"RECREATE");
+  double c1 = atoi(argv[3]);
+  double c0 = atoi(argv[4]);
   cerr<<"File has been open from: "<<argv[1]<<"\n";
   
 //Make trees and histograms for the nuclei
@@ -200,8 +202,8 @@ int main(int argc, char ** argv){
     
     ToF_v_ADC_bar1->Fill(((dataA1[0]+dataA2[0])/2),((T1+T2)/2)-T7);
     ToF_v_ADC_bar2->Fill(((dataA3[0]+dataA4[0])/2),((T3+T4)/2)-T7);
-    ToF_v_ADC_3->Fill(dataA3[0],(T3-T7));
-    ToF_v_ADC_4->Fill(dataA4[0],(T4-T7));	\
+    ToF_v_ADC_3->Fill(dataA3[0],(T3-T7)-(c1/sqrt(dataA3[0]))-c0);
+    ToF_v_ADC_4->Fill(dataA4[0],(T4-T7)-(c1/sqrt(dataA4[0]))-c0);
     
     }
      
