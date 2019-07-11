@@ -19,7 +19,6 @@ using namespace std;
 
 double minRes = -100;
 double maxRes = 100;
-string boobs = "";
 int stepSizeADC = 1;
 int stepSizeSlice = 1000;
 double timeLength = 13.88;
