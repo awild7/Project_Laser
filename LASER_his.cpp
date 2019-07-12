@@ -100,7 +100,7 @@ int main(int argc, char ** argv){
   totalHistList2D.push_back(ToF_v_ADC_3);
   TH2D * ToF_v_ADC_4 = new TH2D("TvA_4","Time of Flight vs ADC of PMT 4",150,0,3000,8000,-60,60);
   totalHistList2D.push_back(ToF_v_ADC_4);
-
+			    
   //Now make a vector of graphs for the ADCs and time of flights
   vector<TGraphAsymmErrors*> graphADCList;
   TGraphAsymmErrors * graphA1 = new TGraphAsymmErrors();
@@ -192,7 +192,76 @@ int main(int argc, char ** argv){
   cerr<<"Finished loop over TTree\n";
  
   inputFile->Close();
+  
+			    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			    
+  //reading the file
+ 
+  TAxis * ADCaxis = (TAxis*) ToF_v_ADC_3->GetYaxis();
+  
+  int binum= ToF_v_ADC_3->GetXaxis()->FindBin(500);
+  int binum2= ToF_v_ADC_3->GetXaxis()->FindBin(750);
+  //making the graphs (LOOOOOP)
+  TGraph *gr1 = new TGraph();
+  gr1->SetName("mean_graph of PMT 3");
+  
+  for (int binn=binum;binn<binum2;binn=binn+1){
+    int binn2= binn+1;
 
+    TH1D*g=(TH1D*)ToF_v_ADC_3->ProjectionY("",binn,binn2,"[cutg1],[cutg2]");
+    double d=g->GetMean();
+    gr1->SetPoint(gr1->GetN(),ToF_v_ADC_3->GetXaxis()->GetBinCenter(binn),d);
+  }    
+   
+  //TF1*myfit=new TF1("fitgraph","([1]/sqrt(x))+[0]",l->GetBinCenter(0),l->GetBinCenter(41));
+  TF1 * myfit = new TF1("fit","([1]/sqrt(x))+[0]",500,750);
+  
+  //
+  
+  myfit->SetParameter(0,60);
+  myfit->SetParameter(1,30);
+  //myfit->Draw();
+  
+  TFitResultPtr mypoint=gr1->Fit(myfit,"qesrn","",500,750);
+  double p0 = mypoint->Parameter(0);
+  double p1 = mypoint->Parameter(1);
+
+  cout<<"p0 = :"<<p0<<" p1 = :"<<p1 << "\n";
+  
+  gr1->Write();
+
+  TAxis * ADCaxis4 = (TAxis*) ToF_v_ADC_4->GetYaxis();
+  
+  int binum3= ToF_v_ADC_4->GetXaxis()->FindBin(500);
+  int binum4= ToF_v_ADC_4->GetXaxis()->FindBin(750);
+  //making the graphs (LOOOOOP)
+  TGraph *gr3 = new TGraph();
+  gr3->SetName("mean_graph of PMT4");
+  
+  for (int binn3=binum3;binn3<binum4;binn3=binn3+1){
+    int binn4= binn3+1;
+    TH1D*g2=(TH1D*)ToF_v_ADC_4->ProjectionY("",binn3,binn4,"[cutg1],[cutg2]");
+    double d2=g2->GetMean();
+    gr3->SetPoint(gr3->GetN(),ToF_v_ADC_4->GetXaxis()->GetBinCenter(binn3),d2);
+  }
+			    
+  //TF1*myfit=new TF1("fitgraph","([1]/sqrt(x))+[0]",l->GetBinCenter(0),l->GetBinCenter(41));
+  TF1 * myfit2 = new TF1("fit","([1]/sqrt(x))+[0]",500,750);
+  
+  //
+  
+  myfit2->SetParameter(0,60);
+  myfit2->SetParameter(1,30);
+  //myfit->Draw();
+  
+  TFitResultPtr mypoint2=gr3->Fit(myfit2,"qesrn","",500,750);
+  double p02 = mypoint2->Parameter(0);
+  double p12 = mypoint2->Parameter(1);
+
+  cout<<"p02 = :"<<p02<<" p12 = :"<<p12 << "\n";
+  
+  gr3->Write();
+			    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   //Write out
   outputFile->cd();  
@@ -203,4 +272,4 @@ int main(int argc, char ** argv){
   cerr<< argv[2]<<" has been completed. \n\n\n";
   
   return 0;
-}
+   }
