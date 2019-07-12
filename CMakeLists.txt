@@ -21,6 +21,10 @@ target_link_libraries(laserHist ${ROOT_LIBRARIES})
 add_executable(getRes getRes.cpp)
 target_link_libraries(getRes ${ROOT_LIBRARIES})
 
+# Add executable for making his
+add_executable(getHist getHist.cpp)
+target_link_libraries(getHist ${ROOT_LIBRARIES})
+
 #Add executable for making his
 add_executable(timewalk timewalk.cpp)
 target_link_libraries(timewalk ${ROOT_LIBRARIES})
