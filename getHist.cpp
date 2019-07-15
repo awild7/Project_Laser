@@ -120,9 +120,9 @@ int main(int argc, char ** argv){
   totalHistList2D.push_back(ToF_v_ADC_bar1);
   TH2D * ToF_v_ADC_bar2 = new TH2D("TvA_2","Time of Flight vs ADC Bottom Bar",90,550,3000,8000,0,100);
   totalHistList2D.push_back(ToF_v_ADC_bar2);
-  TH2D * ToF_v_ADC_3 = new TH2D("TvA_3","Time of Flight vs ADC of PMT 3",150,0,3000,8000,-60,60);
+  TH2D * ToF_v_ADC_3 = new TH2D("TvA_3","Time of Flight vs ADC of PMT 3",150,0,3000,8000,-100,100);
   totalHistList2D.push_back(ToF_v_ADC_3);
-  TH2D * ToF_v_ADC_4 = new TH2D("TvA_4","Time of Flight vs ADC of PMT 4",150,0,3000,8000,-60,60);
+  TH2D * ToF_v_ADC_4 = new TH2D("TvA_4","Time of Flight vs ADC of PMT 4",150,0,3000,8000,-100,100);
   totalHistList2D.push_back(ToF_v_ADC_4);
 
   //Now make a vector of graphs for the ADCs and time of flights
@@ -199,8 +199,8 @@ int main(int argc, char ** argv){
     graphA5 ->SetPoint(graphA5 ->GetN(),xADC,dataA5[0]);
     graphA6 ->SetPoint(graphA6 ->GetN(),xADC,dataA6[0]);
     
-    graphToF1 ->SetPoint(graphA6 ->GetN(),xADC,((T1+T2)/2)-T7);
-    graphToF2 ->SetPoint(graphA6 ->GetN(),xADC,((T3+T4)/2)-T7);
+    graphToF1 ->SetPoint(graphA6 ->GetN(),xADC,T3-T7);
+    graphToF2 ->SetPoint(graphA6 ->GetN(),xADC,T4-T7);
     
     //Fill in total histograms for only the correct step sizes
     ToF_res_bar1->Fill(((T1+T2)/2)-T7);

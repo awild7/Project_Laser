@@ -17,7 +17,7 @@
 
 using namespace std;
 
-int stepSizeADC = 1;
+int stepSizeADC = 10;
 // given by Andrew on Friday April 12th 2019; modified after
 
 int main(int argc, char ** argv){
@@ -98,7 +98,7 @@ int main(int argc, char ** argv){
   totalHistList2D.push_back(ToF_v_ADC_bar2);
   TH2D * ToF_v_ADC_3 = new TH2D("TvA_3","Time of Flight vs ADC of PMT 3",150,0,3000,8000,-60,60);
   totalHistList2D.push_back(ToF_v_ADC_3);
-  TH2D * ToF_v_ADC_4 = new TH2D("TvA_4","Time of Flight vs ADC of PMT 4",150,0,3000,8000,-60,60);
+  TH2D * ToF_v_ADC_4 = new TH2D("TvA_4","Time of Flight vs ADC of PMT 4",150,0,3000,8000,-120,120);
   totalHistList2D.push_back(ToF_v_ADC_4);
 			    
   //Now make a vector of graphs for the ADCs and time of flights
@@ -197,7 +197,6 @@ int main(int argc, char ** argv){
 			    
   //reading the file
  
-  TAxis * ADCaxis = (TAxis*) ToF_v_ADC_3->GetYaxis();
   
   int binum= ToF_v_ADC_3->GetXaxis()->FindBin(500);
   int binum2= ToF_v_ADC_3->GetXaxis()->FindBin(750);
@@ -218,22 +217,21 @@ int main(int argc, char ** argv){
   
   //
   
-  myfit->SetParameter(0,60);
-  myfit->SetParameter(1,30);
+  myfit->SetParameter(0,90);
+  myfit->SetParameter(1,26);
   //myfit->Draw();
   
-  TFitResultPtr mypoint=gr1->Fit(myfit,"qesrn","",500,750);
+  TFitResultPtr mypoint=gr1->Fit(myfit,"qesrn","",600,700);
   double p0 = mypoint->Parameter(0);
   double p1 = mypoint->Parameter(1);
 
-  cout<<"p0 = :"<<p0<<" p1 = :"<<p1 << "\n";
+  cout<<"PMT3C0 = :"<<p0<<" PMT3C1 = :"<<p1 << "\n";
   
   gr1->Write();
 
-  TAxis * ADCaxis4 = (TAxis*) ToF_v_ADC_4->GetYaxis();
-  
-  int binum3= ToF_v_ADC_4->GetXaxis()->FindBin(500);
-  int binum4= ToF_v_ADC_4->GetXaxis()->FindBin(750);
+    
+  int binum3= ToF_v_ADC_4->GetXaxis()->FindBin(550);
+  int binum4= ToF_v_ADC_4->GetXaxis()->FindBin(1700);
   //making the graphs (LOOOOOP)
   TGraph *gr3 = new TGraph();
   gr3->SetName("mean_graph of PMT4");
@@ -246,19 +244,19 @@ int main(int argc, char ** argv){
   }
 			    
   //TF1*myfit=new TF1("fitgraph","([1]/sqrt(x))+[0]",l->GetBinCenter(0),l->GetBinCenter(41));
-  TF1 * myfit2 = new TF1("fit","([1]/sqrt(x))+[0]",500,750);
+  TF1 * myfit2 = new TF1("fit","([1]/sqrt(x))+[0]",550,1700);
   
   //
   
-  myfit2->SetParameter(0,60);
-  myfit2->SetParameter(1,30);
+  myfit2->SetParameter(0,90);
+  myfit2->SetParameter(1,26);
   //myfit->Draw();
   
-  TFitResultPtr mypoint2=gr3->Fit(myfit2,"qesrn","",500,750);
+  TFitResultPtr mypoint2=gr3->Fit(myfit2,"qesrn","",550,1700);
   double p02 = mypoint2->Parameter(0);
   double p12 = mypoint2->Parameter(1);
 
-  cout<<"p02 = :"<<p02<<" p12 = :"<<p12 << "\n";
+  cout<<"PMT4C0 = :"<<p02<<" PMT4C1 = :"<<p12 << "\n";
   
   gr3->Write();
 			    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
