@@ -76,6 +76,7 @@ int main(int argc, char ** argv){
   double dataA4[99] = {0.};
   double dataA5[99] = {0.};
   double dataA6[99] = {0.};
+
   double dataT1[99] = {0.};
   double dataT2[99] = {0.};
   double dataT3[99] = {0.};
@@ -116,10 +117,10 @@ int main(int argc, char ** argv){
   totalHistList1D.push_back(ToF_res_PD);
 
   vector<TH2*> totalHistList2D;
-  TH2D * ToF_v_ADC_bar1 = new TH2D("TvA_1","Time of Flight vs ADC Top Bar",90,550,3000,8000,0,100);
-  totalHistList2D.push_back(ToF_v_ADC_bar1);
-  TH2D * ToF_v_ADC_bar2 = new TH2D("TvA_2","Time of Flight vs ADC Bottom Bar",90,550,3000,8000,0,100);
-  totalHistList2D.push_back(ToF_v_ADC_bar2);
+  TH2D * ToF_v_ADC_1 = new TH2D("TvA_1","Time of Flight vs ADC of PMT 1",150,0,3000,8000,0-100,100);
+  totalHistList2D.push_back(ToF_v_ADC_1);
+  TH2D * ToF_v_ADC_2 = new TH2D("TvA_2","Time of Flight vs ADC of PMT 2",150,0,3000,8000,-100,100);
+  totalHistList2D.push_back(ToF_v_ADC_2);
   TH2D * ToF_v_ADC_3 = new TH2D("TvA_3","Time of Flight vs ADC of PMT 3",150,0,3000,8000,-100,100);
   totalHistList2D.push_back(ToF_v_ADC_3);
   TH2D * ToF_v_ADC_4 = new TH2D("TvA_4","Time of Flight vs ADC of PMT 4",150,0,3000,8000,-100,100);
@@ -139,18 +140,19 @@ int main(int argc, char ** argv){
   TGraphAsymmErrors * graphA4 = new TGraphAsymmErrors();
   graphA4->SetName("ADC4_time");
   graphADCList.push_back(graphA4);
-  TGraphAsymmErrors * graphAb1 = new TGraphAsymmErrors();
-  graphAb1->SetName("ADCb1_time");                    
-  graphADCList.push_back(graphAb1);
-  TGraphAsymmErrors * graphAb2 = new TGraphAsymmErrors();
-  graphAb2->SetName("ADCb2_time");                    
-  graphADCList.push_back(graphAb2);
   TGraphAsymmErrors * graphA5 = new TGraphAsymmErrors();
   graphA5->SetName("ADC5_time");                      
   graphADCList.push_back(graphA5);
   TGraphAsymmErrors * graphA6 = new TGraphAsymmErrors();
   graphA6->SetName("ADC6_time");                                    
   graphADCList.push_back(graphA6);
+  TGraphAsymmErrors * graphAbar1 = new TGraphAsymmErrors();
+  graphAbar1->SetName("ADC_bar1_time");                    
+  graphADCList.push_back(graphAbar1);
+  TGraphAsymmErrors * graphAbar2 = new TGraphAsymmErrors();
+  graphAbar2->SetName("ADC_bar2_time");                    
+  graphADCList.push_back(graphAbar2);
+
   //Time of Flights
   TGraphAsymmErrors * graphToF1 = new TGraphAsymmErrors();
   graphToF1->SetName("ToFb1_time");                     
@@ -189,18 +191,18 @@ int main(int argc, char ** argv){
     T3 -= (c1[3]/sqrt(dataA3[0])) + c0[3];
     T4 -= (c1[4]/sqrt(dataA4[0])) + c0[4];
     
-    double xADC = (double)i * timeLength / (double)(TreeH->GetEntries());
-    graphA1 ->SetPoint(graphA1 ->GetN(),xADC,dataA1[0]);
-    graphA2 ->SetPoint(graphA2 ->GetN(),xADC,dataA2[0]);
-    graphA3 ->SetPoint(graphA3 ->GetN(),xADC,dataA3[0]);
-    graphA4 ->SetPoint(graphA4 ->GetN(),xADC,dataA4[0]);
-    graphAb1->SetPoint(graphAb1->GetN(),xADC,sqrt(dataA1[0]*dataA2[0]));
-    graphAb2->SetPoint(graphAb2->GetN(),xADC,sqrt(dataA3[0]*dataA4[0]));
-    graphA5 ->SetPoint(graphA5 ->GetN(),xADC,dataA5[0]);
-    graphA6 ->SetPoint(graphA6 ->GetN(),xADC,dataA6[0]);
+    double x = (double)i * timeLength / (double)(TreeH->GetEntries());
+    graphA1 ->SetPoint(graphA1 ->GetN(),x,dataA1[0]);
+    graphA2 ->SetPoint(graphA2 ->GetN(),x,dataA2[0]);
+    graphA3 ->SetPoint(graphA3 ->GetN(),x,dataA3[0]);
+    graphA4 ->SetPoint(graphA4 ->GetN(),x,dataA4[0]);
+    graphA5 ->SetPoint(graphA5 ->GetN(),x,dataA5[0]);
+    graphA6 ->SetPoint(graphA6 ->GetN(),x,dataA6[0]);
+    graphAbar1->SetPoint(graphAbar1->GetN(),x,sqrt(dataA1[0]*dataA2[0]));
+    graphAbar2->SetPoint(graphAbar2->GetN(),x,sqrt(dataA3[0]*dataA4[0]));
     
-    graphToF1 ->SetPoint(graphA6 ->GetN(),xADC,T3-T7);
-    graphToF2 ->SetPoint(graphA6 ->GetN(),xADC,T4-T7);
+    graphToF1 ->SetPoint(graphA6 ->GetN(),x,T3-T7);
+    graphToF2 ->SetPoint(graphA6 ->GetN(),x,T4-T7);
     
     //Fill in total histograms for only the correct step sizes
     ToF_res_bar1->Fill(((T1+T2)/2)-T7);
@@ -210,8 +212,8 @@ int main(int argc, char ** argv){
     ToF_res_box->Fill(T5-T7);
     ToF_res_PD->Fill(T6-T7);
     
-    ToF_v_ADC_bar1->Fill(((dataA1[0]+dataA2[0])/2),((T1+T2)/2)-T7);
-    ToF_v_ADC_bar2->Fill(((dataA3[0]+dataA4[0])/2),((T3+T4)/2)-T7);
+    ToF_v_ADC_1->Fill(dataA1[0],T1-T7);
+    ToF_v_ADC_2->Fill(dataA2[0],T2-T7);
     ToF_v_ADC_3->Fill(dataA3[0],T3-T7);
     ToF_v_ADC_4->Fill(dataA4[0],T4-T7);
     
