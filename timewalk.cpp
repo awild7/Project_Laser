@@ -26,7 +26,7 @@ int main(int argc,char ** argv){
 	 <<"provide path to input and to output\n";
     
   }
-  
+
   //getting the file
   TFile * inputFile = new TFile(argv[1]);
   TFile * outputFile = new TFile(argv[2], "RECREATE");
@@ -133,7 +133,6 @@ int main(int argc,char ** argv){
   gr3->Write();
   
   return 1;
-    
 }
 
 

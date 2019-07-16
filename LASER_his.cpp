@@ -196,8 +196,6 @@ int main(int argc, char ** argv){
 			    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			    
   //reading the file
- 
-  
   int binum= ToF_v_ADC_3->GetXaxis()->FindBin(500);
   int binum2= ToF_v_ADC_3->GetXaxis()->FindBin(750);
   //making the graphs (LOOOOOP)
@@ -226,9 +224,14 @@ int main(int argc, char ** argv){
   double p1 = mypoint->Parameter(1);
 
   cout<<"PMT3C0 = :"<<p0<<" PMT3C1 = :"<<p1 << "\n";
-  
-  gr1->Write();
 
+  gr1->GetXaxis()->SetTitle("ADC");
+  gr1->GetYaxis()->SetTitle("ToF");
+
+  gr1->Write();
+  myfit->Write();
+ 
+  
     
   int binum3= ToF_v_ADC_4->GetXaxis()->FindBin(550);
   int binum4= ToF_v_ADC_4->GetXaxis()->FindBin(1700);
@@ -244,7 +247,7 @@ int main(int argc, char ** argv){
   }
 			    
   //TF1*myfit=new TF1("fitgraph","([1]/sqrt(x))+[0]",l->GetBinCenter(0),l->GetBinCenter(41));
-  TF1 * myfit2 = new TF1("fit","([1]/sqrt(x))+[0]",550,1700);
+  TF1 * myfit2 = new TF1("fit2","([1]/sqrt(x))+[0]",550,2100);
   
   //
   
@@ -252,14 +255,15 @@ int main(int argc, char ** argv){
   myfit2->SetParameter(1,26);
   //myfit->Draw();
   
-  TFitResultPtr mypoint2=gr3->Fit(myfit2,"qesrn","",550,1700);
+  TFitResultPtr mypoint2=gr3->Fit(myfit2,"qesrn","",550,2100);
   double p02 = mypoint2->Parameter(0);
   double p12 = mypoint2->Parameter(1);
 
   cout<<"PMT4C0 = :"<<p02<<" PMT4C1 = :"<<p12 << "\n";
-  
   gr3->Write();
-			    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  myfit2->Write();
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   //Write out
   outputFile->cd();  
