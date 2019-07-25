@@ -26,7 +26,7 @@ add_executable(getHist getHist.cpp)
 target_link_libraries(getHist ${ROOT_LIBRARIES})
 
 #Add executable for making his
-add_executable(timewalk timewalk.cpp)
-target_link_libraries(timewalk ${ROOT_LIBRARIES})
+add_executable(newHist newHist.cpp)
+target_link_libraries(newHist ${ROOT_LIBRARIES})
 
 
