@@ -18,7 +18,7 @@ using namespace std;
 
 double minRes = -100;
 double maxRes = 100;
-int stepSizeADC = 10;
+int stepSize = 1;
 
 void failReadIn(){
   cerr<<"the input text file should be constructed\n"
@@ -40,7 +40,7 @@ int main(int argc, char ** argv){
   if( argc != 5){
     
     cerr<<"Wrong number of arguments. Instead try:\n\t"
-	<< "laserHist /path/to/input/Tree/file /path/to/input/parameter/text/file /path/to/output/Hist/file [time length] \n";
+	<< "getHist /path/to/input/Tree/file /path/to/input/parameter/text/file /path/to/output/Hist/file [time length] \n";
 
     return -1;
     
@@ -56,6 +56,11 @@ int main(int argc, char ** argv){
   int PMTnumber;
   double c1[10];
   double c0[10];
+
+  if( !inParamFile.is_open() ){
+    cerr<<"The text file could not be opened.\n Aborting...\n\n";
+    exit(-1);
+  }
   while(inParamFile >> PMTnumber){
     if(counter != PMTnumber){
       failReadIn();
@@ -103,112 +108,72 @@ int main(int argc, char ** argv){
   
   //Histograms we want to output
   vector<TH1*> totalHistList1D;
-  TH1D * ToF_res_bar1 = new TH1D("ToFTop","Time of Flight on Top Bar",4000,0,100);
+  TH1D * ToF_res_bar1 = new TH1D("ToFTop","Time of Flight on Top Bar",4000,-100,100);
   totalHistList1D.push_back(ToF_res_bar1);
-  TH1D * ToF_res_bar2 = new TH1D("ToFBot","Time of Flight on Bottom Bar",4000,0,100);
+  TH1D * ToF_res_bar2 = new TH1D("ToFBot","Time of Flight on Bottom Bar",4000,-100,100);
   totalHistList1D.push_back(ToF_res_bar2);
   TH1D * Pos_res_bar1 = new TH1D("PosTop","Time of Flight on Top Bar",4000,-100,100);
   totalHistList1D.push_back(Pos_res_bar1);
   TH1D * Pos_res_bar2 = new TH1D("PosBot","Time of Flight on Bottom Bar",4000,-100,100);  
   totalHistList1D.push_back(Pos_res_bar2);
-  TH1D * ToF_res_box = new TH1D("ToFbox","Time of Flight on PMT Box",4000,0,100);
+  TH1D * ToF_res_1 = new TH1D("ToF_PMT1","Time of Flight on PMT 1",4000,-100,100);
+  totalHistList1D.push_back(ToF_res_1);
+  TH1D * ToF_res_2 = new TH1D("ToF_PMT2","Time of Flight on PMT 2",4000,-100,100);
+  totalHistList1D.push_back(ToF_res_2);
+  TH1D * ToF_res_3 = new TH1D("ToF_PMT3","Time of Flight on PMT 3",4000,-100,100);
+  totalHistList1D.push_back(ToF_res_3);
+  TH1D * ToF_res_4 = new TH1D("ToF_PMT4","Time of Flight on PMT 4",4000,-100,100);
+  totalHistList1D.push_back(ToF_res_4);
+  TH1D * ToF_res_box = new TH1D("ToFbox","Time of Flight on PMT Box",4000,-100,100);
   totalHistList1D.push_back(ToF_res_box);
-  TH1D * ToF_res_PD = new TH1D("ToFPD","Time of Flight on Photodiode",40,27,28);
+  TH1D * ToF_res_PD = new TH1D("ToFPD","Time of Flight on Photodiode",4000,-100,100);
   totalHistList1D.push_back(ToF_res_PD);
 
   vector<TH2*> totalHistList2D;
-  TH2D * ToF_v_ADC_1 = new TH2D("TvA_1","Time of Flight vs ADC of PMT 1",150,0,3000,8000,0-100,100);
+  TH2D * ToF_v_ADC_1 = new TH2D("TvA_1","Time of Flight vs ADC of PMT 1",450,0,3000,2000,-100,100);
   totalHistList2D.push_back(ToF_v_ADC_1);
-  TH2D * ToF_v_ADC_2 = new TH2D("TvA_2","Time of Flight vs ADC of PMT 2",150,0,3000,8000,-100,100);
+  TH2D * ToF_v_ADC_2 = new TH2D("TvA_2","Time of Flight vs ADC of PMT 2",450,0,3000,2000,-100,100);
   totalHistList2D.push_back(ToF_v_ADC_2);
-  TH2D * ToF_v_ADC_3 = new TH2D("TvA_3","Time of Flight vs ADC of PMT 3",150,0,3000,8000,-100,100);
+  TH2D * ToF_v_ADC_3 = new TH2D("TvA_3","Time of Flight vs ADC of PMT 3",450,0,3000,2000,-100,100);
   totalHistList2D.push_back(ToF_v_ADC_3);
-  TH2D * ToF_v_ADC_4 = new TH2D("TvA_4","Time of Flight vs ADC of PMT 4",150,0,3000,8000,-100,100);
+  TH2D * ToF_v_ADC_4 = new TH2D("TvA_4","Time of Flight vs ADC of PMT 4",450,0,3000,2000,-100,100);
   totalHistList2D.push_back(ToF_v_ADC_4);
-
-  //Now make a vector of graphs for the ADCs and time of flights
-  vector<TGraphAsymmErrors*> graphADCList;
-  TGraphAsymmErrors * graphA1 = new TGraphAsymmErrors();
-  graphA1->SetName("ADC1_time");
-  graphADCList.push_back(graphA1);
-  TGraphAsymmErrors * graphA2 = new TGraphAsymmErrors();
-  graphA2->SetName("ADC2_time");                      
-  graphADCList.push_back(graphA2);
-  TGraphAsymmErrors * graphA3 = new TGraphAsymmErrors();
-  graphA3->SetName("ADC3_time");                      
-  graphADCList.push_back(graphA3);
-  TGraphAsymmErrors * graphA4 = new TGraphAsymmErrors();
-  graphA4->SetName("ADC4_time");
-  graphADCList.push_back(graphA4);
-  TGraphAsymmErrors * graphA5 = new TGraphAsymmErrors();
-  graphA5->SetName("ADC5_time");                      
-  graphADCList.push_back(graphA5);
-  TGraphAsymmErrors * graphA6 = new TGraphAsymmErrors();
-  graphA6->SetName("ADC6_time");                                    
-  graphADCList.push_back(graphA6);
-  TGraphAsymmErrors * graphAbar1 = new TGraphAsymmErrors();
-  graphAbar1->SetName("ADC_bar1_time");                    
-  graphADCList.push_back(graphAbar1);
-  TGraphAsymmErrors * graphAbar2 = new TGraphAsymmErrors();
-  graphAbar2->SetName("ADC_bar2_time");                    
-  graphADCList.push_back(graphAbar2);
-
-  //Time of Flights
-  TGraphAsymmErrors * graphToF1 = new TGraphAsymmErrors();
-  graphToF1->SetName("ToFb1_time");                     
-  graphADCList.push_back(graphToF1);
-  TGraphAsymmErrors * graphToF2 = new TGraphAsymmErrors();
-  graphToF2->SetName("ToFb2_time");                                    
-  graphADCList.push_back(graphToF2);
+  TH2D * ToF_v_ADC_5 = new TH2D("TvA_5","Time of Flight vs ADC of PMT 5",450,0,3000,2000,-100,100);
+  totalHistList2D.push_back(ToF_v_ADC_5);
+  TH2D * ToF_v_ADC_6 = new TH2D("TvA_6","Time of Flight vs ADC of PD",450,0,3000,2000,-100,100);
+  totalHistList2D.push_back(ToF_v_ADC_6);
   
-  
-  double eventsADC = (double)(TreeH->GetEntries()/stepSizeADC);
-
   cerr<<"Histograms and Trees successfully created\n";
   
 //Loop over TTree
 
   const double A = 0.025;
 
-  for(int i = 0; i < TreeH->GetEntries(); i += stepSizeADC){
+  for(int i = 0; i < (TreeH->GetEntries()); i += stepSize){
     
     //Display completed
     if((i%10000) == 0){
-      cerr << (i*100.)/(TreeH->GetEntries()) <<"% completed events in the first loop \n";
+      cerr << (i*100.)/(TreeH->GetEntries()) <<"% complete in the Histogram Loop \n";
     }
+
+    
     TreeH->GetEntry(i);
-
-    //Convet TDC to units of picosecons
-    double T1 = dataT1[0] * A;
-    double T2 = dataT2[0] * A;
-    double T3 = dataT3[0] * A;
-    double T4 = dataT4[0] * A;
-    double T5 = dataT5[0] * A;
-    double T6 = dataT6[0] * A;    
-    double T7 = dataT7[0] * A;
-
-    //Make Time of Flight corrections for PMT 3 and 4 alone for now
-    T3 -= (c1[3]/sqrt(dataA3[0])) + c0[3];
-    T4 -= (c1[4]/sqrt(dataA4[0])) + c0[4];
+    double T1 = ( dataT1[0] * A ) - ( (c1[1]/sqrt(dataA1[0])) + c0[1] );
+    double T2 = ( dataT2[0] * A ) - ( (c1[2]/sqrt(dataA2[0])) + c0[2] );
+    double T3 = ( dataT3[0] * A ) - ( (c1[3]/sqrt(dataA3[0])) + c0[3] );
+    double T4 = ( dataT4[0] * A ) - ( (c1[4]/sqrt(dataA4[0])) + c0[4] );
+    double T5 = ( dataT5[0] * A ) - ( (c1[5]/sqrt(dataA5[0])) + c0[5] );
+    double T6 = ( dataT6[0] * A ) - ( (c1[6]/sqrt(dataA6[0])) + c0[6] );    
+    double T7 = ( dataT7[0] * A );
     
-    double x = (double)i * timeLength / (double)(TreeH->GetEntries());
-    graphA1 ->SetPoint(graphA1 ->GetN(),x,dataA1[0]);
-    graphA2 ->SetPoint(graphA2 ->GetN(),x,dataA2[0]);
-    graphA3 ->SetPoint(graphA3 ->GetN(),x,dataA3[0]);
-    graphA4 ->SetPoint(graphA4 ->GetN(),x,dataA4[0]);
-    graphA5 ->SetPoint(graphA5 ->GetN(),x,dataA5[0]);
-    graphA6 ->SetPoint(graphA6 ->GetN(),x,dataA6[0]);
-    graphAbar1->SetPoint(graphAbar1->GetN(),x,sqrt(dataA1[0]*dataA2[0]));
-    graphAbar2->SetPoint(graphAbar2->GetN(),x,sqrt(dataA3[0]*dataA4[0]));
-    
-    graphToF1 ->SetPoint(graphA6 ->GetN(),x,T3-T7);
-    graphToF2 ->SetPoint(graphA6 ->GetN(),x,T4-T7);
-    
-    //Fill in total histograms for only the correct step sizes
     ToF_res_bar1->Fill(((T1+T2)/2)-T7);
     ToF_res_bar2->Fill(((T3+T4)/2)-T7);
     Pos_res_bar1->Fill(T1-T2);
     Pos_res_bar2->Fill(T3-T4);
+    ToF_res_1->Fill(T1-T7);
+    ToF_res_2->Fill(T2-T7);
+    ToF_res_3->Fill(T3-T7);
+    ToF_res_4->Fill(T4-T7);
     ToF_res_box->Fill(T5-T7);
     ToF_res_PD->Fill(T6-T7);
     
@@ -216,6 +181,8 @@ int main(int argc, char ** argv){
     ToF_v_ADC_2->Fill(dataA2[0],T2-T7);
     ToF_v_ADC_3->Fill(dataA3[0],T3-T7);
     ToF_v_ADC_4->Fill(dataA4[0],T4-T7);
+    ToF_v_ADC_5->Fill(dataA5[0],T5-T7);
+    ToF_v_ADC_6->Fill(dataA6[0],T6-T7);
     
     }
      
@@ -228,7 +195,6 @@ int main(int argc, char ** argv){
   outputFile->cd();  
   for (int i = 0; i < totalHistList1D.size(); i++){totalHistList1D[i]->Write();}
   for (int i = 0; i < totalHistList2D.size(); i++){totalHistList2D[i]->Write();}
-  for (int i = 0; i < graphADCList.size(); i++){graphADCList[i]->Write();}
   outputFile->Close();
   cerr<< argv[2]<<" has been completed. \n\n\n";
   

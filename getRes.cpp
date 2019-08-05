@@ -16,31 +16,60 @@
 
 using namespace std;
 
-double minRes = -100;
-double maxRes = 100;
-int stepSizeSlice = 30000;
+double minRes = -1;
+double maxRes = 1;
+int stepSize = 300000;
 
+void failReadIn(){
+  cerr<<"the input text file should be constructed\n"
+      <<"with three rows for the PMT number, the "
+      <<"first parameter p1, and the second parameter"
+      <<"p0. It should start at PMT 0 and go to 9\n\n"
+      <<"0 [p1 of PMT 0] [p0 of PMT 0]\n"
+      <<"1 [p1 of PMT 1] [p0 of PMT 1]\n"
+      <<".\n"
+      <<".\n"
+      <<".\n"
+      <<"9 [p1 of PMT 9] [p0 of PMT 9]\n";
+  exit(-1);
+}
 
 // given by Andrew on Friday April 12th 2019; modified after
 
 int main(int argc, char ** argv){
 
-  if( argc != 6){
+  if( argc != 5){
     
     cerr<<"Wrong number of arguments. Instead try:\n\t"
-	<< "laserHist /path/to/input/Tree/file /path/to/output/Hist/file [time length] [c1] [c0]\n";
+	<< "getRes  /path/to/input/Tree/file /path/to/input/parameter/text/file /path/to/output/Hist/file [time length] \n";
 
     return -1;
     
   }
-  
+
 //Get D and A trees. Open output file.
   TFile * inputFile = new TFile(argv[1]);
-  TFile * outputFile = new TFile(argv[2],"RECREATE");
-  double timeLength = atoi(argv[3]);
-  double c1 = atoi(argv[4]);
-  double c0 = atoi(argv[5]);
-  
+  ifstream inParamFile;
+  inParamFile.open(string(argv[2]));
+  TFile * outputFile = new TFile(argv[3],"RECREATE");
+  double timeLength = atoi(argv[4]);
+  int counter=0;
+  int PMTnumber;
+  double c1[10];
+  double c0[10];
+
+  if( !inParamFile.is_open() ){
+    cerr<<"The text file could not be opened.\n Aborting...\n\n";
+    exit(-1);
+  }
+  while(inParamFile >> PMTnumber){
+    if(counter != PMTnumber){
+      failReadIn();
+    }
+    inParamFile >> c1[PMTnumber] >> c0[PMTnumber];
+    counter++;
+  } 
+   
   cerr<<"File has been open from: "<<argv[1]<<"\n";
   
 //Make trees and histograms for the nuclei
@@ -54,6 +83,7 @@ int main(int argc, char ** argv){
   double dataA4[99] = {0.};
   double dataA5[99] = {0.};
   double dataA6[99] = {0.};
+
   double dataT1[99] = {0.};
   double dataT2[99] = {0.};
   double dataT3[99] = {0.};
@@ -94,12 +124,6 @@ int main(int argc, char ** argv){
   TGraphAsymmErrors * graphresT4 = new TGraphAsymmErrors();
   graphresT4->SetName("ToF_res_4_time");
   graphResList.push_back(graphresT4);
-  TGraphAsymmErrors * graphresb1 = new TGraphAsymmErrors();
-  graphresb1->SetName("Pos_res_b1_time");
-  graphResList.push_back(graphresb1);
-  TGraphAsymmErrors * graphresb2 = new TGraphAsymmErrors();
-  graphresb2->SetName("Pos_res_b2_time");
-  graphResList.push_back(graphresb2);
   TGraphAsymmErrors * graphresT5 = new TGraphAsymmErrors();
   graphresT5->SetName("ToF_res_5_time");
   graphResList.push_back(graphresT5);
@@ -109,32 +133,28 @@ int main(int argc, char ** argv){
 
   //Start by defining histograms to get the standard deviations
   vector<TH1*> sliceHistList;
-  TH1D * slice_T1 = new TH1D("sliceT1","sliceT1",4000,minRes,maxRes);
+  TH1D * slice_T1 = new TH1D("sliceT1","sliceT1",40,minRes,maxRes);
   sliceHistList.push_back(slice_T1);
-  TH1D * slice_T2 = new TH1D("sliceT1","sliceT1",4000,minRes,maxRes);
+  TH1D * slice_T2 = new TH1D("sliceT1","sliceT1",40,minRes,maxRes);
   sliceHistList.push_back(slice_T2);
-  TH1D * slice_T3 = new TH1D("sliceT1","sliceT1",4000,minRes,maxRes);
+  TH1D * slice_T3 = new TH1D("sliceT1","sliceT1",40,minRes,maxRes);
   sliceHistList.push_back(slice_T3);
-  TH1D * slice_T4 = new TH1D("sliceT1","sliceT1",4000,minRes,maxRes);
+  TH1D * slice_T4 = new TH1D("sliceT1","sliceT1",40,minRes,maxRes);
   sliceHistList.push_back(slice_T4);
-  TH1D * slice_b1 = new TH1D("sliceT1","sliceT1",4000,minRes,maxRes);
-  sliceHistList.push_back(slice_b1);
-  TH1D * slice_b2 = new TH1D("sliceT1","sliceT1",4000,minRes,maxRes);
-  sliceHistList.push_back(slice_b2);
-  TH1D * slice_T5 = new TH1D("sliceT1","sliceT1",4000,minRes,maxRes);
+  TH1D * slice_T5 = new TH1D("sliceT1","sliceT1",40,minRes,maxRes);
   sliceHistList.push_back(slice_T5);
-  TH1D * slice_T6 = new TH1D("sliceT1","sliceT1",4000,minRes,maxRes);
+  TH1D * slice_T6 = new TH1D("sliceT1","sliceT1",40,minRes,maxRes);
   sliceHistList.push_back(slice_T6);
 
   const double A = 0.025;
   
-  for(int i = 0; i < TreeH->GetEntries(); i += stepSizeSlice){
+  for(int i = 0; i < (TreeH->GetEntries()); i += stepSize){
 
     //Display completed
-    if((i%(stepSizeSlice*10)) == 0){
+    if((i%(stepSize*10)) == 0){
       cerr << (i*100.)/(TreeH->GetEntries()) <<"% complete\n";
     }  
-    for(int j = i; j < (i + stepSizeSlice); j++){         
+    for(int j = i; j < (i + stepSize); j++){         
       if(j >= TreeH->GetEntries()){
 	continue;
       }
@@ -149,19 +169,24 @@ int main(int argc, char ** argv){
       double T6 = dataT6[0] * A;    
       double T7 = dataT7[0] * A;	 	 
       //now calculate the resolution of time with the slice histograms and then fill the vectors    
-      //Now fill histograms
-      slice_T1->Fill(T1-T7);
-      slice_T2->Fill(T2-T7);
+
+      //Make Time of Flight corrections
+      T1 -= (c1[1]/sqrt(dataA1[0])) + c0[1];
+      T2 -= (c1[2]/sqrt(dataA2[0])) + c0[2];
+      T3 -= (c1[3]/sqrt(dataA3[0])) + c0[3];
+      T4 -= (c1[4]/sqrt(dataA4[0])) + c0[4];
+      T5 -= (c1[5]/sqrt(dataA5[0])) + c0[5];
+      T6 -= (c1[6]/sqrt(dataA6[0])) + c0[6];
+      
       slice_T3->Fill(T3-T7);
       slice_T4->Fill(T4-T7);
-      slice_b1->Fill(T1-T2);
-      slice_b2->Fill(T3-T4);
+      slice_T1->Fill(T1-T7);
+      slice_T2->Fill(T2-T7);
       slice_T5->Fill(T5-T7);
       slice_T6->Fill(T6-T7);
-    }
+      }
 
     double xSlice = (double)i * timeLength / ((double)(TreeH->GetEntries()));
-
 
     
     //Now I can fit my slices to my gausians
@@ -170,15 +195,34 @@ int main(int argc, char ** argv){
       myfit->SetParameter(0,sliceHistList[k]->GetMaximum());
       myfit->SetParameter(1,sliceHistList[k]->GetMean());
       myfit->SetParameter(2,sliceHistList[k]->GetStdDev());
-      TFitResultPtr point = sliceHistList[k]->Fit(myfit,"qesrn","",minRes,maxRes);
-      double res = point->Parameter(2);
-      //if(res>0.5){
-      //	res=sliceHistList[k]->GetStdDev();
-	//}
-      graphResList[k]->SetPoint(graphResList[k]->GetN(),xSlice,res);
+
+      if(k=0){
+	sliceHistList[k]->Write();
+      }
+      
+      if( (sliceHistList[k]->GetEntries()) > 1000 ){
+	TFitResultPtr point = sliceHistList[k]->Fit(myfit,"qeSrn","",minRes,maxRes);
+	int fitStatus = point;
+	double res;
+	if(fitStatus == 0){
+	  res = point->Parameter(2);
+	}
+	else{
+	  res = sliceHistList[k]->GetMean();	
+	}
+	graphResList[k]->SetPoint(graphResList[k]->GetN(),xSlice,res);
+      }
+
+      /*
+      int fitStatus = point;
+      double res = -1000;      	
+      if(fitStatus == 0){
+	cout<<"lsakjfsalkfj\n";
+
+	}*/
+     
       sliceHistList[k]->Reset();
     }
-    
   }
     
   cerr<<"Finished loop over TTree\n";

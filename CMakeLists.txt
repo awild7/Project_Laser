@@ -17,16 +17,23 @@ include_directories(${INCLUDES} ${CMAKE_CURRENT_BINARY_DIR})
 add_executable(laserHist LASER_his.cpp)
 target_link_libraries(laserHist ${ROOT_LIBRARIES})
 
-# Add executable for making his
-add_executable(getRes getRes.cpp)
-target_link_libraries(getRes ${ROOT_LIBRARIES})
-
-# Add executable for making his
-add_executable(getHist getHist.cpp)
-target_link_libraries(getHist ${ROOT_LIBRARIES})
-
 #Add executable for making his
 add_executable(newHist newHist.cpp)
 target_link_libraries(newHist ${ROOT_LIBRARIES})
+
+
+
+# Add executable for making getRes
+add_executable(getRes getRes.cpp)
+target_link_libraries(getRes ${ROOT_LIBRARIES})
+
+# Add executable for making getHist
+add_executable(getHist getHist.cpp)
+target_link_libraries(getHist ${ROOT_LIBRARIES})
+
+# Add executable for making getGraph
+add_executable(getGraph getGraph.cpp)
+target_link_libraries(getGraph ${ROOT_LIBRARIES})
+
 
 
