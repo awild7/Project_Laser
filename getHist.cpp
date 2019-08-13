@@ -176,7 +176,7 @@ int main(int argc, char ** argv){
     ToF_res_4->Fill(T4-T7);
     ToF_res_box->Fill(T5-T7);
     ToF_res_PD->Fill(T6-T7);
-    cout<<dataA1[0]<<"   "<<dataT1[0]<<"\n";
+    //    cout<<dataA1[0]<<"   "<<dataT1[0]<<"\n";
     ToF_v_ADC_1->Fill(dataA1[0],T1-T7);
     ToF_v_ADC_2->Fill(dataA2[0],T2-T7);
     ToF_v_ADC_3->Fill(dataA3[0],T3-T7);

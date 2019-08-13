@@ -14,14 +14,17 @@ set(INCLUDES ${ROOT_INCLUDE_DIR} ${CMAKE_SOURCE_DIR}/include)
 include_directories(${INCLUDES} ${CMAKE_CURRENT_BINARY_DIR})
 
 # Add executable for making his
-add_executable(laserHist LASER_his.cpp)
-target_link_libraries(laserHist ${ROOT_LIBRARIES})
+#add_executable(laserHist LASER_his.cpp)
+#target_link_libraries(laserHist ${ROOT_LIBRARIES})
 
 #Add executable for making his
-add_executable(newHist newHist.cpp)
-target_link_libraries(newHist ${ROOT_LIBRARIES})
+#add_executable(newHist newHist.cpp)
+#target_link_libraries(newHist ${ROOT_LIBRARIES})
 
 
+#Add executable for making his
+add_executable(timeWalk timeWalk.cpp)
+target_link_libraries(timeWalk ${ROOT_LIBRARIES})
 
 # Add executable for making getRes
 add_executable(getRes getRes.cpp)
